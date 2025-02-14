@@ -1,0 +1,39 @@
+{
+    "manifest_version": 3,
+    "name": "Twitch Crosshair",
+    "version": "1.0.0",
+    "description": "配信画面の中心にクロスヘアを表示します",
+    "icons": {
+        "16": "images/icon-16.png",
+        "32": "images/icon-32.png",
+        "48": "images/icon-48.png",
+        "128": "images/icon-128.png"
+    },
+    "action": {
+        "default_popup": "popup/index.html",
+        "default_title": "twitch crosshair",
+        "default_icon": {
+            "16": "images/icon-16.png",
+            "32": "images/icon-32.png",
+            "48": "images/icon-48.png",
+            "128": "images/icon-128.png"
+        }
+    },
+    "permissions": ["storage"],
+    "host_permissions": [
+        "*://*.twitch.tv/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "*://www.twitch.tv/*",
+                "*://www.youtube.com/*",
+                "*://youtu.be/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ]
+}

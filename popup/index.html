@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Crosshair</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="controls">
+        <label for="crosshair-toggle">Enable Crosshair:</label>
+        <input type="checkbox" id="crosshair-toggle" checked>
+        <button id="save">Save</button>
+    </div>
+
+    <h2>Customize</h2>
+
+    <details id="dot" class="setting">
+        <summary>Dot</summary>
+        <div class="setting">
+            <label for="dot-color">Color:</label>
+            <input type="color" id="dot-color" value="#ff0000">
+        </div>
+
+        <div class="setting">
+            <label for="dot-size">Size (px):</label>
+            <input type="number" id="dot-size" min="1" max="10" value="4">
+        </div>
+    </details>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
