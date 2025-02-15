@@ -34,9 +34,9 @@ saveButton.addEventListener("click", () => {
     };
 
     chrome.storage.sync.set(newSettings, () => {
-        saveButton.style.background = "green";
+        saveButton.style.background = "pink";
         setTimeout(() => {
-            saveButton.style.background = "none";
+            saveButton.style.background = "var(--primary-color)";
         }, 1000);
     });
 });
