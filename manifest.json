@@ -19,7 +19,9 @@
             "128": "images/icon-128.png"
         }
     },
-    "permissions": ["storage"],
+    "permissions": [
+        "storage"
+    ],
     "host_permissions": [
         "*://*.twitch.tv/*"
     ],
