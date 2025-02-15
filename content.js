@@ -1,11 +1,5 @@
-const YOUTUBE_DOMAINS = [
-    "www.youtube.com",
-    "youtu.be"
-];
-
-const TWITCH_DOMAINS = [
-    "www.twitch.tv"
-];
+const YOUTUBE_DOMAINS = ["www.youtube.com", "youtu.be"];
+const TWITCH_DOMAINS = ["www.twitch.tv"];
 
 const Platform = Object.freeze({
     UNKNOWN: 0,
@@ -14,17 +8,17 @@ const Platform = Object.freeze({
 });
 
 let currentSettings = {
-    "enabled": true,
-    "dot": {
-        "color": "#ff0000",
-        "size": 3
+    enabled: true,
+    dot: {
+        color: "#ff0000",
+        size: 3
     }
 };
 
 function getPlatform() {
-    const currentDomain = location.host;
-    if (YOUTUBE_DOMAINS.includes(currentDomain)) return Platform.YOUTUBE;
-    if (TWITCH_DOMAINS.includes(currentDomain)) return Platform.TWITCH;
+    const host = location.host;
+    if (YOUTUBE_DOMAINS.includes(host)) return Platform.YOUTUBE;
+    if (TWITCH_DOMAINS.includes(host)) return Platform.TWITCH;
     return Platform.UNKNOWN;
 }
 
@@ -47,7 +41,7 @@ function createOrUpdateCrosshairElement({ container, settings }) {
         crosshair = document.createElement("div");
         crosshair.className = "crosshair";
         container.appendChild(crosshair);
-        console.info("created crosshair element and added to container.")
+        console.info("Created crosshair element and added to container.");
     }
 
     crosshair.style.position = "absolute";
@@ -64,45 +58,40 @@ function createOrUpdateCrosshairElement({ container, settings }) {
     crosshair.style.borderRadius = "50%";
     crosshair.style.border = "none";
 
-    console.info("updated crosshair styles.")
+    console.info("Updated crosshair styles.");
 }
 
 function addOrUpdateCrosshair() {
     if (!currentSettings.enabled) {
         document.querySelectorAll(".crosshair").forEach(element => element.remove());
-        console.info("enabled is false, removed all crosshairs.")
+        console.info("Crosshair disabled; removed all crosshairs.");
         return;
     }
+
     const platform = getPlatform();
     const selector = getContainerSelector(platform);
+    if (!selector) return;
+
     const containers = document.querySelectorAll(selector);
     containers.forEach((container) => {
-        createOrUpdateCrosshairElement({
-            container: container,
-            settings: currentSettings
-        });
+        createOrUpdateCrosshairElement({ container, settings: currentSettings });
     });
 }
 
-async function updateSettings() {
-    chrome.storage.sync.get(
-        currentSettings,
-        (settings) => {
-            currentSettings = settings;
-            addOrUpdateCrosshair();
-        }
-    );
+function updateSettings() {
+    chrome.storage.sync.get(currentSettings, (settings) => {
+        currentSettings = settings;
+        addOrUpdateCrosshair();
+    });
 }
 
 window.addEventListener("load", async () => {
-    await updateSettings();
+    updateSettings();
 
     const observer = new MutationObserver(() => {
         addOrUpdateCrosshair();
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
-    chrome.storage.onChanged.addListener(async () => {
-        await updateSettings();
-    });
+    chrome.storage.onChanged.addListener(updateSettings);
 });
