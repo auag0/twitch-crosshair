@@ -13,9 +13,12 @@ const Platform = Object.freeze({
     TWITCH: 2
 });
 
-let dotSettings = {
-    "color": "#ff0000",
-    "size": 4
+let currentSettings = {
+    "enabled": true,
+    "dot": {
+        "color": "#ff0000",
+        "size": 3
+    }
 };
 
 function getPlatform() {
@@ -25,50 +28,67 @@ function getPlatform() {
     return Platform.UNKNOWN;
 }
 
-function addOrUpdateCrosshair() {
-    let query;
-    switch (getPlatform()) {
+function getContainerSelector(platform) {
+    switch (platform) {
         case Platform.YOUTUBE:
-            query = "#player #player-container";
-            break;
+            return "#player #player-container";
         case Platform.TWITCH:
-            query = ".video-player__overlay";
-            break;
+            return ".video-player__overlay";
         default:
             console.error("not supported platform: ", location.host);
-            return;
+            return null;
+    }
+}
+
+function createOrUpdateCrosshairElement({ container, settings }) {
+    let crosshair = container.querySelector(".crosshair");
+
+    if (!crosshair) {
+        crosshair = document.createElement("div");
+        crosshair.className = "crosshair";
+        container.appendChild(crosshair);
+        console.info("created crosshair element and added to container.")
     }
 
-    const containers = document.querySelectorAll(query);
+    crosshair.style.position = "absolute";
+    crosshair.style.top = "50%";
+    crosshair.style.left = "50%";
+    crosshair.style.transform = "translate(-50%, -50%)";
+    crosshair.style.zIndex = "1000";
+    crosshair.style.pointerEvents = "none";
+
+    const dotSettings = settings.dot;
+    crosshair.style.width = `${dotSettings.size}px`;
+    crosshair.style.height = `${dotSettings.size}px`;
+    crosshair.style.backgroundColor = dotSettings.color;
+    crosshair.style.borderRadius = "50%";
+    crosshair.style.border = "none";
+
+    console.info("updated crosshair styles.")
+}
+
+function addOrUpdateCrosshair() {
+    if (!currentSettings.enabled) {
+        document.querySelectorAll(".crosshair").forEach(element => element.remove());
+        console.info("enabled is false, removed all crosshairs.")
+        return;
+    }
+    const platform = getPlatform();
+    const selector = getContainerSelector(platform);
+    const containers = document.querySelectorAll(selector);
     containers.forEach((container) => {
-        let crosshair = container.querySelector(".crosshair");
-
-        if (!crosshair) {
-            crosshair = document.createElement("div");
-            crosshair.className = "crosshair";
-            container.appendChild(crosshair);
-        }
-
-        crosshair.style.position = "absolute";
-        crosshair.style.top = "50%";
-        crosshair.style.left = "50%";
-        crosshair.style.transform = "translate(-50%, -50%)";
-        crosshair.style.zIndex = "1000";
-        crosshair.style.pointerEvents = "none";
-
-        crosshair.style.width = `${dotSettings.size}px`;
-        crosshair.style.height = `${dotSettings.size}px`;
-        crosshair.style.backgroundColor = dotSettings.color;
-        crosshair.style.borderRadius = "50%";
-        crosshair.style.border = "none";
+        createOrUpdateCrosshairElement({
+            container: container,
+            settings: currentSettings
+        });
     });
 }
 
 async function updateSettings() {
     chrome.storage.sync.get(
-        ["dot"],
-        (data) => {
-            dotSettings = data.dot;
+        currentSettings,
+        (settings) => {
+            currentSettings = settings;
             addOrUpdateCrosshair();
         }
     );
